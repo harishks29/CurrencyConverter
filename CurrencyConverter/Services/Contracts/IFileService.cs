@@ -2,6 +2,6 @@
 {
     public interface IFileService
     {
-        Task<Dictionary<string, decimal>?> LoadExchangeRatesFromJson();
+        Task<Dictionary<string, decimal>> LoadExchangeRatesFromJson();
     }
 }

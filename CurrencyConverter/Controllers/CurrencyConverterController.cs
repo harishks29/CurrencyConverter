@@ -1,11 +1,12 @@
 ﻿using CurrencyConverter.Models;
 using CurrencyConverter.Services.Contracts;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
+using System.Web.Http;
+using HttpGetAttribute = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
 
 namespace CurrencyConverter.Controllers
 {
-    [Route("api/[controller]")]
+    [System.Web.Http.Route("api/[controller]")]
     [ApiController]
     public class CurrencyConverterController : ControllerBase
     {
@@ -20,14 +21,24 @@ namespace CurrencyConverter.Controllers
         }
 
         [HttpGet("/Convert")]
-        public IActionResult Convert([Required] string sourceCurrency, [Required] string targetCurrency, [Required] decimal amount)
+        public IActionResult Convert([FromQuery] ExchangeQuery exchangeQuery)
         {
-            var exchangeRate = _exchangeService.GetExchangeRate(sourceCurrency, targetCurrency);
-            return new JsonResult(new ExchangeResult
+            var exchangeQueryIsValidResult = _exchangeService.IsExchangeQueryValid(exchangeQuery);
+            if (exchangeQueryIsValidResult.Item1)
             {
-                ExchangeRate = exchangeRate,
-                ConvertedAmount = amount * exchangeRate
-            });
+                var exchangeRate = _exchangeService.GetExchangeRate(exchangeQuery.SourceCurrency, exchangeQuery.TargetCurrency);
+                return Ok(new ExchangeResult
+                {
+                    ExchangeRate = exchangeRate,
+                    ConvertedAmount = exchangeQuery.Amount * exchangeRate
+                });
+            }
+            else
+            {
+                _logger.LogError(exchangeQueryIsValidResult.Item2);
+                return BadRequest(exchangeQueryIsValidResult.Item2);
+            }
         }
+        
     }
 }

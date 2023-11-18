@@ -11,7 +11,7 @@ namespace CurrencyConverter.Services
             _logger = logger;
         }
 
-        public async Task<Dictionary<string, decimal>?> LoadExchangeRatesFromJson()
+        public async Task<Dictionary<string, decimal>> LoadExchangeRatesFromJson()
         {
             var path = Path.Combine(Directory.GetCurrentDirectory(), "Resources\\ExchangeRates.json");
             try

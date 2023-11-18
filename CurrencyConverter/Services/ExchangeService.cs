@@ -1,4 +1,6 @@
-﻿using CurrencyConverter.Services.Contracts;
+﻿using CurrencyConverter.Models;
+using CurrencyConverter.Services.Contracts;
+using System.Text;
 
 namespace CurrencyConverter.Services
 {
@@ -6,7 +8,7 @@ namespace CurrencyConverter.Services
     {
         private readonly IFileService _fileService;
         private readonly ILogger<ExchangeService> _logger;
-        private Dictionary<string, decimal>? _exchangeRates;
+        private Dictionary<string, decimal> _exchangeRates;
 
         public ExchangeService(IFileService fileService,
                                ILogger<ExchangeService> logger)
@@ -38,6 +40,35 @@ namespace CurrencyConverter.Services
             }
 
             return 0m;
+        }
+
+        public (bool, string) IsExchangeQueryValid(ExchangeQuery exchangeQuery)
+        {
+            var errorMessage = new StringBuilder();
+            var isValid = true;
+            if (IsValidCurrencyCode(exchangeQuery.SourceCurrency))
+            {
+                errorMessage.Append("Source Currency is not valid");
+                isValid = false;
+            }
+
+            if (IsValidCurrencyCode(exchangeQuery.TargetCurrency))
+            {
+                if (!isValid)
+                {
+                    errorMessage.AppendLine();
+                }
+                errorMessage.Append("Target Currency is not valid");
+                isValid = false;
+            }
+
+            return (isValid, errorMessage.ToString());
+        }
+
+        private bool IsValidCurrencyCode(string currencyCode)
+        {
+            return !Enum.TryParse(currencyCode, true, out CurrencyCode castedCurrencycode)
+                || !Enum.IsDefined(typeof(CurrencyCode), castedCurrencycode);
         }
     }
 }

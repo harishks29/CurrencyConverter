@@ -1,4 +1,5 @@
-﻿using CurrencyConverter.Services;
+﻿using CurrencyConverter.Models;
+using CurrencyConverter.Services;
 using CurrencyConverter.Services.Contracts;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -28,6 +29,28 @@ namespace CurrencyConverter.UnitTests.ServicesTests
             var result = _exchangeService.GetExchangeRate("usd", "inr");
 
             Assert.That(result, Is.EqualTo(74m));
+        }
+
+        [Test]
+        public void When_isExchangeQueryValid_called_with_valid_input_then_return_true()
+        {
+            var input = new ExchangeQuery { SourceCurrency ="usd", TargetCurrency="inr", Amount=10m };
+
+            var result = _exchangeService.IsExchangeQueryValid(input);
+
+            Assert.IsTrue(result.Item1);
+            Assert.IsEmpty(result.Item2);
+        }
+
+        [Test]
+        public void When_isExchangeQueryValid_called_with_invalid_input_then_return_false()
+        {
+            var input = new ExchangeQuery { SourceCurrency = "usr", TargetCurrency = "ini", Amount = 10m };
+
+            var result = _exchangeService.IsExchangeQueryValid(input);
+
+            Assert.IsFalse(result.Item1);
+            Assert.IsNotEmpty(result.Item2);
         }
     }
 }
