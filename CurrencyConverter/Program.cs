@@ -17,6 +17,7 @@ namespace CurrencyConverter
             builder.Services.AddSwaggerGen();
             builder.Services.AddSingleton<IFileService, FileService>();
             builder.Services.AddSingleton<IExchangeService, ExchangeService>();
+            //use config instead above service
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

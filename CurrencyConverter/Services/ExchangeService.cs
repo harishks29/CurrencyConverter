@@ -21,13 +21,22 @@ namespace CurrencyConverter.Services
         private async void LoadExchangeRates()
         {
             _exchangeRates = await _fileService.LoadExchangeRatesFromJson() ?? default;
+            foreach(var exr in _exchangeRates)
+            {
+
+                var res = System.Environment.GetEnvironmentVariable(exr.Key, EnvironmentVariableTarget.Process);
+                if (!string.IsNullOrWhiteSpace(res) && Decimal.TryParse(res, out decimal val))
+                {
+                    _exchangeRates[exr.Key] = val;
+                }
+            }            
         }
 
         public decimal GetExchangeRate(string sourceCurrency, string targetCurrency)
         {
             var exchangeString = sourceCurrency.ToUpper() + "_TO_" + targetCurrency.ToUpper();
 
-            if (_exchangeRates != null && _exchangeRates.Any())
+            if (_exchangeRates.Any())
             {
                 try
                 {
@@ -39,7 +48,7 @@ namespace CurrencyConverter.Services
                 }
             }
 
-            return 0m;
+            return default;
         }
 
         public (bool, string) IsExchangeQueryValid(ExchangeQuery exchangeQuery)
